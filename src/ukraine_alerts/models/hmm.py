@@ -22,13 +22,12 @@ from __future__ import annotations
 
 import logging
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from sklearn.preprocessing import StandardScaler
 
-from ukraine_alerts.utils.constants import HMM_N_COMPONENTS
 from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
+from ukraine_alerts.utils.constants import HMM_N_COMPONENTS
 
 logger = logging.getLogger(__name__)
 

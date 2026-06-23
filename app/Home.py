@@ -100,7 +100,7 @@ st.markdown("---")
 # ---------------------------------------------------------------------------
 
 st.subheader("Explore")
-c1, c2, c3 = st.columns(3)
+c1, c2, c3, c4 = st.columns(4)
 
 with c1:
     st.markdown("### 📈 EDA")
@@ -125,3 +125,11 @@ with c3:
         "14-day Prophet forecast with ruptures changepoints."
     )
     st.page_link("pages/3_Modeling.py", label="Open Modeling →", icon="🔮")
+
+with c4:
+    st.markdown("### 🎯 Threat Profiles")
+    st.markdown(
+        "Unsupervised GMM classification of attack waves into physical "
+        "signatures (MiG, Shahed, Tactical)."
+    )
+    st.page_link("pages/4_Threat_Profiles.py", label="Open Threats →", icon="🎯")

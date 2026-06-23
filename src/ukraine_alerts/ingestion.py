@@ -91,7 +91,6 @@ def _download_csv(url: str, dest: Path, chunk_size: int = 1024 * 256) -> None:
     try:
         with requests.get(url, stream=True, timeout=60) as response:
             response.raise_for_status()
-            total = int(response.headers.get("content-length", 0))
             downloaded = 0
 
             with dest.open("wb") as f:

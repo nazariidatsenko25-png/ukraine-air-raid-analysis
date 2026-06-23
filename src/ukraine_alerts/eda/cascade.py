@@ -28,12 +28,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
 from ukraine_alerts.utils.constants import (
     CASCADE_WINDOW_HOURS,
     COL_REGION,
     COL_START,
 )
-from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
 
 logger = logging.getLogger(__name__)
 
@@ -349,7 +349,7 @@ def plot_secondary_strike_curve(
         line=dict(color=COLORS["primary"], width=2.5),
         marker=dict(color=COLORS["primary"], size=8),
         fill="tozeroy",
-        fillcolor=f"rgba(230, 57, 70, 0.1)",
+        fillcolor="rgba(230, 57, 70, 0.1)",
         hovertemplate="Within <b>%{x}h</b>: P(secondary strike) = <b>%{y:.1%}</b><extra></extra>",
     ))
 

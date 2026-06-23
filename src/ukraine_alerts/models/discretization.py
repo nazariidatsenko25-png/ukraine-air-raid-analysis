@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from ukraine_alerts.utils.constants import COL_DATE, COL_DURATION_MIN, COL_REGION, COL_START
+from ukraine_alerts.utils.constants import COL_DATE, COL_DURATION_MIN, COL_REGION
 
 # ---------------------------------------------------------------------------
 # Public API

@@ -14,9 +14,7 @@ and return Plotly figures ready for Streamlit embedding.
 from __future__ import annotations
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 from ukraine_alerts.utils.constants import (
     COL_DATE,

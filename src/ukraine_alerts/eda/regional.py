@@ -13,17 +13,15 @@ All functions accept a clean DataFrame (output of preprocessing.build_clean_data
 from __future__ import annotations
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
+from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
 from ukraine_alerts.utils.constants import (
-    COL_DATE,
     COL_DURATION_MIN,
     COL_IS_IMPUTED,
     COL_REGION,
     COL_START,
 )
-from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
 
 # Regions with known permanent/long-running sirens — optionally excluded from
 # duration statistics to avoid distorting averages.
