@@ -8,9 +8,17 @@ from plotly.utils import PlotlyJSONEncoder
 from ukraine_alerts.api.routers import cascade, eda, models, threats
 
 
+from ukraine_alerts.api.dependencies import get_cleaned_data
+import logging
+
+logger = logging.getLogger("uvicorn.error")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup actions (e.g., loading data into memory if needed, but we will let routers handle it or cache it)
+    # Preload the dataset so the first request is fast
+    logger.info("Preloading cleaned dataset into memory...")
+    get_cleaned_data()
+    logger.info("Dataset loaded successfully.")
     yield
     # Shutdown actions
 

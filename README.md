@@ -50,14 +50,6 @@ The Next.js dashboard will be available at `http://localhost:3000` and the FastA
 - **Backend:** FastAPI, Pandas, Prophet, hmmlearn, scikit-learn
 - **Frontend:** Next.js 15, Tailwind v4, Zustand, React Query, Framer Motion, Plotly.js
 
-## Run the Dashboard
-
-```bash
-streamlit run app/app.py
-```
-
-Open [http://localhost:8501](http://localhost:8501) in your browser.
-
 ## Run Tests
 
 ```bash
@@ -71,15 +63,16 @@ ukraine-air-raid-analysis/
 ├── src/ukraine_alerts/
 │   ├── ingestion.py        # Data download + validation
 │   ├── preprocessing.py    # Cleaning, imputation, feature engineering
-│   ├── eda/                # Visualization modules
+│   ├── api/                # FastAPI backend + routers
+│   ├── eda/                # Data analysis logic
+│   ├── charts/             # Plotly.js chart generation functions
 │   ├── models/             # HMM, Hawkes, Prophet
 │   └── utils/constants.py  # Shared constants
-├── app/
-│   ├── app.py              # Streamlit entrypoint
-│   └── pages/              # Multi-page Streamlit pages
+├── frontend/               # Next.js 15 App Router project
 ├── scripts/
 │   └── verify_phase1.py    # Pipeline smoke test
 ├── tests/                  # pytest test suite
+├── docker-compose.yml      # Orchestration
 └── pyproject.toml          # Dependencies + tooling config
 ```
 
