@@ -15,9 +15,10 @@ def plot_threat_scatter(waves: pd.DataFrame) -> go.Figure:
     fig = px.scatter(
         waves,
         x="duration_min", y="region_count", color="threat_profile",
-        color_discrete_map=THREAT_COLORS, opacity=0.6,
+        color_discrete_map=THREAT_COLORS, opacity=0.3,
         hover_data=["started_at"],
         title="Attack Waves by Duration and Geographic Spread",
+        marginal_x="histogram", marginal_y="histogram",
     )
 
     fig.update_layout(

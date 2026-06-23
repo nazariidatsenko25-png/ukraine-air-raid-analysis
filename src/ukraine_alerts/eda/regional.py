@@ -33,7 +33,7 @@ PERMANENT_SIREN_REGIONS = {"Luhanska oblast", "Crimea"}
 # ---------------------------------------------------------------------------
 
 
-def _region_summary(df: pd.DataFrame) -> pd.DataFrame:
+def build_region_summary(df: pd.DataFrame) -> pd.DataFrame:
     """Build a per-region summary DataFrame used by multiple plots."""
     summary = (
         df.groupby(COL_REGION)
@@ -70,7 +70,7 @@ def plot_region_alert_ranking(
     Returns:
         Plotly horizontal bar figure.
     """
-    summary = _region_summary(df)
+    summary = build_region_summary(df)
     if exclude_permanent:
         summary = summary[~summary[COL_REGION].isin(PERMANENT_SIREN_REGIONS)]
     summary = summary.head(top_n)
@@ -127,7 +127,7 @@ def plot_region_duration_comparison(
     if exclude_permanent:
         df_filtered = df_filtered[~df_filtered[COL_REGION].isin(PERMANENT_SIREN_REGIONS)]
 
-    summary = _region_summary(df_filtered).sort_values("avg_duration_min", ascending=False)
+    summary = build_region_summary(df_filtered).sort_values("avg_duration_min", ascending=False)
 
     fig = go.Figure(go.Bar(
         x=summary["avg_duration_min"],
@@ -244,7 +244,7 @@ def plot_region_treemap(df: pd.DataFrame) -> go.Figure:
     Returns:
         Plotly treemap figure.
     """
-    summary = _region_summary(df)
+    summary = build_region_summary(df)
 
     fig = go.Figure(go.Treemap(
         labels=summary[COL_REGION],

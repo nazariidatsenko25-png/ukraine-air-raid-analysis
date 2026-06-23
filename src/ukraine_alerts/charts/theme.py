@@ -15,7 +15,7 @@ COLORS = {
     "text_primary": "#EDEDED",      # Off-white for legibility
     "text_muted": "#888888",        # Subdued for non-critical info
     "accent": "#FF3333",            # Single functional accent (Alert/Danger)
-    "accent_muted": "#FF333333",    # 20% opacity for fills
+    "accent_muted": "rgba(255, 51, 51, 0.2)",    # 20% opacity for fills
     "surface": "#141414",           # Elevated surfaces
     "grid": "#222222",              # Extremely subtle grid
 }
@@ -35,9 +35,9 @@ REGIME_COLORS = {
     "High Threat/Crisis": COLORS["accent"],
 }
 
-# Axis style: minimal, no bounding boxes, subtle grid
+# Axis style: minimal but functional
 AXIS_STYLE = dict(
-    showgrid=False,
+    showgrid=True,
     gridcolor=COLORS["grid"],
     gridwidth=1,
     zeroline=False,
