@@ -8,12 +8,11 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from ukraine_alerts.eda.temporal import AXIS_STYLE, COLORS, LAYOUT_BASE
+from ukraine_alerts.charts.threat_charts import plot_threat_scatter, plot_threat_timeline
 from ukraine_alerts.ingestion import fetch_raw_data
 from ukraine_alerts.models.threat_clustering import fit_threat_gmm, group_attack_waves
 from ukraine_alerts.preprocessing import build_clean_dataset
@@ -79,40 +78,7 @@ st.markdown(
     "fast/wide (MiG/Ballistic), slow/wide (Shahed), and fast/localized (Artillery/Tactical)."
 )
 
-# Define custom color map for the threat profiles
-THREAT_COLORS = {
-    "Strategic/Ballistic (MiG)": COLORS["accent"],  # Red
-    "Loitering Munition (Shahed)": "#F4A261",       # Amber
-    "Tactical/Artillery": COLORS["primary"],        # Blue
-    "Unknown": COLORS["text_muted"],
-}
-
-fig_scatter = px.scatter(
-    waves,
-    x="duration_min",
-    y="region_count",
-    color="threat_profile",
-    color_discrete_map=THREAT_COLORS,
-    opacity=0.4,
-    hover_data=["started_at"],
-    title="Attack Waves by Duration and Geographic Spread",
-)
-
-fig_scatter.update_layout(
-    **LAYOUT_BASE,
-    xaxis=dict(
-        **AXIS_STYLE,
-        title="Wave Duration (minutes)",
-        range=[0, 800],  # Cap visual x-axis to focus on the main clusters
-    ),
-    yaxis=dict(
-        **AXIS_STYLE,
-        title="Number of Regions Affected",
-    ),
-    legend_title_text="Inferred Threat Profile",
-)
-fig_scatter.update_traces(marker=dict(size=6, line=dict(width=0)))
-st.plotly_chart(fig_scatter, use_container_width=True)
+st.plotly_chart(plot_threat_scatter(waves), use_container_width=True)
 
 st.markdown("---")
 
@@ -126,31 +92,7 @@ st.markdown(
     "(Note: The Shahed cluster naturally emerges strongly after October 2022)."
 )
 
-# Resample waves to monthly counts by threat profile
-waves["month"] = waves["started_at"].dt.to_period("M").dt.to_timestamp()
-monthly_threats = (
-    waves.groupby(["month", "threat_profile"])
-    .size()
-    .reset_index(name="count")
-)
-
-fig_bar = px.bar(
-    monthly_threats,
-    x="month",
-    y="count",
-    color="threat_profile",
-    color_discrete_map=THREAT_COLORS,
-    title="Monthly Attack Waves by Inferred Threat",
-)
-
-fig_bar.update_layout(
-    **LAYOUT_BASE,
-    xaxis=dict(**AXIS_STYLE, title=""),
-    yaxis=dict(**AXIS_STYLE, title="Number of Attack Waves"),
-    legend_title_text="",
-    barmode="stack",
-)
-st.plotly_chart(fig_bar, use_container_width=True)
+st.plotly_chart(plot_threat_timeline(waves), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # 3. KPI Summary

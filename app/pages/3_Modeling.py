@@ -12,10 +12,11 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
+from ukraine_alerts.charts.model_charts import plot_prophet_forecast, plot_regime_overlay
 from ukraine_alerts.ingestion import fetch_raw_data
 from ukraine_alerts.models.discretization import build_daily_series, list_regions_with_data
-from ukraine_alerts.models.forecasting import fit_prophet, plot_prophet_forecast
-from ukraine_alerts.models.hmm import decode_regimes, fit_hmm, plot_regime_overlay
+from ukraine_alerts.models.forecasting import fit_prophet
+from ukraine_alerts.models.hmm import decode_regimes, fit_hmm
 from ukraine_alerts.preprocessing import build_clean_dataset
 
 st.set_page_config(page_title="Modeling — Air Raid Analysis", layout="wide", page_icon="🔮")

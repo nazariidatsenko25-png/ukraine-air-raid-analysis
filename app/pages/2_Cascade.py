@@ -12,12 +12,14 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from ukraine_alerts.eda.cascade import (
-    compute_cascade_matrix,
-    compute_secondary_strike_curve,
+from ukraine_alerts.charts.cascade_charts import (
     plot_cascade_heatmap,
     plot_secondary_strike_curve,
     plot_top_cascade_pairs,
+)
+from ukraine_alerts.eda.cascade import (
+    compute_cascade_matrix,
+    compute_secondary_strike_curve,
 )
 from ukraine_alerts.ingestion import fetch_raw_data
 from ukraine_alerts.preprocessing import build_clean_dataset

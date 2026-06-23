@@ -12,17 +12,15 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from ukraine_alerts.eda.regional import (
-    plot_region_alert_ranking,
-    plot_region_duration_comparison,
-    plot_region_treemap,
-    plot_regional_intensity_over_time,
-)
-from ukraine_alerts.eda.temporal import (
+from ukraine_alerts.charts.eda_charts import (
     plot_daily_alert_counts,
     plot_duration_distribution,
     plot_hourly_heatmap,
     plot_monthly_alert_counts,
+    plot_region_alert_ranking,
+    plot_region_duration_comparison,
+    plot_region_treemap,
+    plot_regional_intensity_over_time,
 )
 from ukraine_alerts.ingestion import fetch_raw_data
 from ukraine_alerts.preprocessing import build_clean_dataset
