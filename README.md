@@ -36,10 +36,19 @@ pip install -r requirements.txt
 
 Data is automatically downloaded from the [Vadimkin Ukrainian air raid sirens dataset](https://github.com/Vadimkin/ukrainian-air-raid-sirens-dataset) on first run. No Kaggle account or API key required.
 
+## Local Development (Docker)
+
+The easiest way to run the full stack is using Docker Compose:
+
 ```bash
-# Optional: pre-download data
-python -m ukraine_alerts.ingestion
+docker-compose up --build
 ```
+
+The Next.js dashboard will be available at `http://localhost:3000` and the FastAPI backend at `http://localhost:8000`.
+
+## Architecture
+- **Backend:** FastAPI, Pandas, Prophet, hmmlearn, scikit-learn
+- **Frontend:** Next.js 15, Tailwind v4, Zustand, React Query, Framer Motion, Plotly.js
 
 ## Run the Dashboard
 

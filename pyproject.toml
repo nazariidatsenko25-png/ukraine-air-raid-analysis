@@ -9,9 +9,11 @@ dependencies = [
     "scikit-learn>=1.4",
     "prophet>=1.1",
     "plotly>=5.20",
-    "streamlit>=1.35",
     "hmmlearn>=0.3",
     "ruptures>=1.1",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.7",
     "requests>=2.31",
     "pyarrow>=15.0",
 ]
