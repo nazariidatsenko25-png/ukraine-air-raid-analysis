@@ -96,23 +96,21 @@ def build_clean_dataset(df_raw: pd.DataFrame) -> pd.DataFrame:
 
 def _select_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Select and rename to canonical column names."""
+    # Capture naive BEFORE column filtering since it's not in col_map
+    naive_series = df["naive"].astype(bool) if "naive" in df.columns else pd.Series([False] * len(df), index=df.index)
+
     col_map = {
         "region": COL_REGION,
         "started_at": COL_START,
         "finished_at": COL_END,  # volunteer_data_en.csv uses finished_at
-        # region_id not present in volunteer dataset — omitted
     }
     available = {k: v for k, v in col_map.items() if k in df.columns}
     df = df[list(available.keys())].rename(columns=available).copy()
 
-    # Preserve the 'naive' flag from the source if present.
+    # Preserve the 'naive' flag.
     # naive=True means the source already imputed finished_at (start + 30min).
     # We must NOT double-impute these rows.
-    if "naive" in df.columns:
-        df[COL_NAIVE] = df["naive"].astype(bool)
-    else:
-        df[COL_NAIVE] = False
-
+    df[COL_NAIVE] = naive_series.values
     df[COL_IS_IMPUTED] = False
     df[COL_IS_OVERLAPPING] = False
     return df
@@ -126,7 +124,7 @@ def _parse_datetimes(df: pd.DataFrame) -> pd.DataFrame:
     We normalize everything to UTC; Kyiv-local conversion happens at display time.
     """
     for col in [COL_START, COL_END]:
-        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+        df[col] = pd.to_datetime(df[col], utc=True, format="ISO8601", errors="coerce")
 
     n_bad_start = df[COL_START].isna().sum()
     n_bad_end = df[COL_END].isna().sum()
@@ -209,9 +207,9 @@ def _impute_missing_end_times(df: pd.DataFrame) -> pd.DataFrame:
     for idx in missing_idx:
         region = df.at[idx, COL_REGION]
         imputed_duration = _get_imputed_duration(region)
-        df.at[idx, COL_END] = df.at[idx, COL_START] + pd.Timedelta(
-            minutes=imputed_duration
-        )
+        raw_ts = df.at[idx, COL_START] + pd.Timedelta(minutes=imputed_duration)
+        # Cast to the same resolution as the column (pandas 2.x uses datetime64[us])
+        df.at[idx, COL_END] = raw_ts.as_unit("us")
         df.at[idx, COL_IS_IMPUTED] = True
 
     logger.info(
