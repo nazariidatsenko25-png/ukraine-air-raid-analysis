@@ -1,0 +1,3 @@
+"""
+conftest.py — pytest configuration.
+"""
