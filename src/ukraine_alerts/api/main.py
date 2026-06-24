@@ -15,10 +15,33 @@ logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    import threading
     # Preload the dataset so the first request is fast
     logger.info("Preloading cleaned dataset into memory...")
     get_cleaned_data()
     logger.info("Dataset loaded successfully.")
+
+    # Warm model caches in background — first real user request will hit cache
+    def _warm_caches():
+        try:
+            from ukraine_alerts.models.discretization import list_regions_with_data
+            from ukraine_alerts.api.routers.models import _cached_regimes_json, _cached_forecast_json, _df_hash
+            from ukraine_alerts.api.routers.cascade import _cached_heatmap_json, _df_hash as _c_hash
+            df = get_cleaned_data()
+            h = _df_hash(df)
+            regions = list_regions_with_data(df, min_days=30)
+            logger.info("Warming cascade heatmap cache...")
+            _cached_heatmap_json(_c_hash(df))
+            logger.info("Cascade heatmap cached.")
+            for r in regions[:5]:  # warm top 5 regions
+                logger.info("Warming model cache for %s...", r)
+                _cached_regimes_json(r, h)
+                _cached_forecast_json(r, h)
+            logger.info("Model cache warm-up complete.")
+        except Exception as e:
+            logger.warning("Cache warm-up failed (non-fatal): %s", e)
+
+    threading.Thread(target=_warm_caches, daemon=True).start()
     yield
     # Shutdown actions
 

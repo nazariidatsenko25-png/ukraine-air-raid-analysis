@@ -9,14 +9,14 @@ router = APIRouter()
 
 @router.get("/scatter")
 def get_threat_scatter(df: pd.DataFrame = Depends(get_cleaned_data)):
-    waves = group_attack_waves(df, max_gap_minutes=30)
-    waves = fit_threat_gmm(waves, n_components=3)
+    waves = group_attack_waves(df)
+    waves, _, _ = fit_threat_gmm(waves)
     fig = plot_threat_scatter(waves)
     return Response(content=fig.to_json(), media_type="application/json")
 
 @router.get("/timeline")
 def get_threat_timeline(df: pd.DataFrame = Depends(get_cleaned_data)):
-    waves = group_attack_waves(df, max_gap_minutes=30)
-    waves = fit_threat_gmm(waves, n_components=3)
+    waves = group_attack_waves(df)
+    waves, _, _ = fit_threat_gmm(waves)
     fig = plot_threat_timeline(waves)
     return Response(content=fig.to_json(), media_type="application/json")

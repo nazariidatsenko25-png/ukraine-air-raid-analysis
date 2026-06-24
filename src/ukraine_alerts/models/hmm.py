@@ -53,7 +53,7 @@ STATE_LINE_COLORS = [COLORS["accent"], "#F4A261", COLORS["primary"]]
 def fit_hmm(
     daily: pd.DataFrame,
     n_components: int = HMM_N_COMPONENTS,
-    n_iter: int = 200,
+    n_iter: int = 50,
     random_state: int = 42,
 ) -> tuple:
     """
