@@ -16,7 +16,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-64 h-screen border-r border-border bg-card/50 flex flex-col pt-8 pb-4">
+    <div className="w-64 h-screen sticky top-0 border-r border-border bg-card/50 flex flex-col pt-8 pb-4">
       <div className="px-6 mb-8">
         <h1 className="text-xl font-mono font-bold tracking-tight text-glow-primary text-primary uppercase">
           Ukraine Alerts
