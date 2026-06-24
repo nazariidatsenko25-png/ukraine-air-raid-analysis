@@ -52,7 +52,6 @@ def plot_prophet_forecast(forecast: pd.DataFrame, actual: pd.DataFrame, region: 
         xaxis=dict(**AXIS_STYLE, title=""),
         yaxis=dict(**AXIS_STYLE, title="Daily Alert Count"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=COLORS["text_muted"])),
-        hovermode="x unified",
     )
     return fig
 
@@ -96,6 +95,5 @@ def plot_regime_overlay(decoded: pd.DataFrame, region: str = "") -> go.Figure:
         xaxis=dict(**AXIS_STYLE, title=""),
         yaxis=dict(**AXIS_STYLE, title="Daily Alert Count"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=COLORS["text_muted"])),
-        hovermode="x unified",
     )
     return fig

@@ -59,6 +59,7 @@ LAYOUT_BASE = dict(
         bgcolor=COLORS["surface"],
         font_size=12,
         font_family="sans-serif",
+        font_color=COLORS["text_primary"],
         bordercolor=COLORS["grid"],
     ),
 )

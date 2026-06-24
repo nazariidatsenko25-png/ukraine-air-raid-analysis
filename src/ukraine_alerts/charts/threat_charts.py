@@ -27,7 +27,7 @@ def plot_threat_scatter(waves: pd.DataFrame) -> go.Figure:
         yaxis=dict(**AXIS_STYLE, title="Number of Regions Affected"),
         legend_title_text="Inferred Threat Profile",
     )
-    fig.update_traces(marker=dict(size=6, line=dict(width=0)))
+    fig.update_traces(selector=dict(type="scatter"), marker=dict(size=6, line=dict(width=0)))
     return fig
 
 def plot_threat_timeline(waves: pd.DataFrame) -> go.Figure:
