@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Chart } from "@/components/ui/Chart";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { fetchChartData, fetchJsonData } from "@/lib/api";
@@ -18,23 +18,32 @@ const cardVariants = {
 };
 
 export default function ModelingPage() {
-  const [region, setRegion] = useState("Kyiv");
+  const [region, setRegion] = useState("");
 
   const { data: regionsData } = useQuery({
     queryKey: ["/models/regions"],
     queryFn: () => fetchJsonData("/models/regions"),
   });
 
-  const { data: regimesData, isLoading: isRegimesLoading } = useQuery({
+  // Auto-select first region when data arrives
+  useEffect(() => {
+    if (regionsData?.regions?.length && !regionsData.regions.includes(region)) {
+      setRegion(regionsData.regions[0]);
+    }
+  }, [regionsData, region]);
+
+  const { data: regimesData, isLoading: isRegimesLoading, isError: isRegimesError } = useQuery({
     queryKey: ["/models/regimes", region],
     queryFn: () => fetchChartData(`/models/${encodeURIComponent(region)}/regimes`),
     enabled: !!region,
+    retry: 1,
   });
 
-  const { data: forecastData, isLoading: isForecastLoading } = useQuery({
+  const { data: forecastData, isLoading: isForecastLoading, isError: isForecastError } = useQuery({
     queryKey: ["/models/forecast", region],
     queryFn: () => fetchChartData(`/models/${encodeURIComponent(region)}/forecast`),
     enabled: !!region,
+    retry: 1,
   });
 
   return (
@@ -64,6 +73,11 @@ export default function ModelingPage() {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Hidden Markov Model: Attack Regimes</h3>
         <div className="flex-1 relative">
           {isRegimesLoading && <Skeleton className="absolute inset-0" />}
+          {isRegimesError && (
+            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
+              Failed to load regime data for {region}. Try another region.
+            </div>
+          )}
           {regimesData && <Chart data={regimesData.data} layout={regimesData.layout} />}
         </div>
       </motion.div>
@@ -72,6 +86,11 @@ export default function ModelingPage() {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Prophet Forecast (14 Days)</h3>
         <div className="flex-1 relative">
           {isForecastLoading && <Skeleton className="absolute inset-0" />}
+          {isForecastError && (
+            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
+              Failed to load forecast for {region}. Try another region.
+            </div>
+          )}
           {forecastData && <Chart data={forecastData.data} layout={forecastData.layout} />}
         </div>
       </motion.div>
