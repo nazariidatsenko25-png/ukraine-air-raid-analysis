@@ -67,16 +67,16 @@ def plot_secondary_strike_curve(curve_df: pd.DataFrame, trigger_region: str) -> 
     region_short = trigger_region.replace(" oblast", "")
 
     fig = go.Figure(go.Scatter(
-        x=curve_df["window_hours"], y=curve_df["probability"], mode="lines+markers",
+        x=curve_df["window_hours"], y=curve_df["expected_regions"], mode="lines+markers",
         line=dict(color=COLORS["accent"], width=2.5), marker=dict(color=COLORS["accent"], size=8),
         fill="tozeroy", fillcolor=COLORS["accent_muted"],
-        hovertemplate="Within <b>%{x}h</b>: P(secondary strike) = <b>%{y:.1%}</b><extra></extra>",
+        hovertemplate="Within <b>%{x}h</b>: Avg <b>%{y:.1f}</b> other regions on alert<extra></extra>",
     ))
 
     fig.update_layout(
         **LAYOUT_BASE,
-        title=f"National Secondary Strike Probability After Alert in {region_short}",
+        title=f"Expected Secondary Alert Cascade After Strike in {region_short}",
         xaxis=dict(**AXIS_STYLE, title="Time Window (hours)"),
-        yaxis=dict(**AXIS_STYLE, tickformat=".0%", title="P(at least one secondary alert nationally)"),
+        yaxis=dict(**AXIS_STYLE, tickformat=".1f", title="Avg. Secondary Regions on Alert"),
     )
     return fig

@@ -162,18 +162,38 @@ def compute_secondary_strike_curve(
     if windows_hours is None:
         windows_hours = [0.5, 1, 2, 3, 4, 6, 8, 12, 24]
 
+    # Ponytail: Computing the full NxN cascade matrix 9 times takes ~90s.
+    # If we only need P(at least one other region fires | trigger) for a single region,
+    # we can compute it directly in a single pass.
+    
+    df_sorted = df[[COL_REGION, COL_START]].sort_values(COL_START).reset_index(drop=True)
+    trigger_mask = df_sorted[COL_REGION] == trigger_region
+    trigger_indices = np.where(trigger_mask)[0]
+    
+    if len(trigger_indices) < 5:
+        return pd.DataFrame([{"window_hours": w, "expected_regions": np.nan} for w in windows_hours])
+
+    starts = df_sorted[COL_START].values
+    regions = df_sorted[COL_REGION].values
+
     results = []
     for w in windows_hours:
-        matrix = compute_cascade_matrix(df, window_hours=w, min_trigger_events=5)
-        if trigger_region not in matrix.index:
-            results.append({"window_hours": w, "probability": np.nan})
-            continue
-        # Probability that ANY other region fires within window
-        row = matrix.loc[trigger_region].drop(trigger_region, errors="ignore")
-        # P(at least one response) ≈ 1 - P(no response) = 1 - prod(1 - p_i)
-        # (assuming independence — approximation, but interpretable)
-        p_any = 1 - np.prod(1 - row.clip(0, 1).values)
-        results.append({"window_hours": w, "probability": p_any})
+        window_ns = int(w * 3600 * 1e9)
+        counts = []
+        for idx in trigger_indices:
+            t_start = starts[idx]
+            t_end = t_start + np.timedelta64(window_ns, 'ns')
+            
+            # binary search for end
+            hi = np.searchsorted(starts, t_end, side='right')
+            
+            # unique regions in window
+            window_regions = regions[idx+1:hi]
+            unique_others = set(window_regions) - {trigger_region}
+            counts.append(len(unique_others))
+            
+        prob = np.mean(counts) if counts else np.nan
+        results.append({"window_hours": w, "expected_regions": prob})
 
     return pd.DataFrame(results)
 
