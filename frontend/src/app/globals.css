@@ -67,13 +67,7 @@ body {
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
-/* Chart card toolbar — hidden until hover, always visible on focus */
+/* Chart card toolbar — always visible but dim, brightens on button hover (handled by tailwind) */
 .chart-toolbar {
-  opacity: 0;
   transition: opacity 150ms ease;
-}
-
-.group:hover .chart-toolbar,
-.chart-toolbar:focus-within {
-  opacity: 1;
 }
