@@ -113,7 +113,9 @@ export function ChartCard({
   const handleDownload = useCallback(() => {
     const el = graphDivRef.current as HTMLElement & { layout?: Plotly.Layout } | null;
     if (!el) return;
-    import("plotly.js").then(({ default: Plotly }) => {
+    // @ts-expect-error No type definitions for plotly.js-dist-min
+    import("plotly.js-dist-min").then((PlotlyModule) => {
+      const Plotly = PlotlyModule.default || PlotlyModule;
       const slug = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
       Plotly.downloadImage(el, {
         format: "png",

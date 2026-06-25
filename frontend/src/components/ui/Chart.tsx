@@ -3,10 +3,20 @@
 import dynamic from "next/dynamic";
 import { TacticalSkeleton } from "./tactical-skeleton";
 
-const Plot = dynamic(() => import("react-plotly.js"), {
-  ssr: false,
-  loading: () => <TacticalSkeleton variant="block" label="LOADING PLOTLY" />,
-});
+const Plot = dynamic(
+  () =>
+    Promise.all([
+      // @ts-expect-error No type definitions for plotly.js-dist-min
+      import("plotly.js-dist-min"),
+      import("react-plotly.js/factory"),
+    ]).then(([Plotly, createPlotlyComponent]) =>
+      createPlotlyComponent.default(Plotly.default || Plotly)
+    ),
+  {
+    ssr: false,
+    loading: () => <TacticalSkeleton variant="block" label="LOADING PLOTLY" />,
+  }
+);
 
 // Frontend-owned base layout — Python sends only structural data (titles, traces, axis labels).
 // All aesthetic properties (colors, fonts, hover style, margins) live here.
