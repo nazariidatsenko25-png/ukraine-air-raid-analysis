@@ -35,7 +35,7 @@ const baseLayout: Partial<Plotly.Layout> = {
     xanchor: "left",
     pad: { l: 0, t: 0 },
   },
-  margin: { l: 48, r: 16, t: 36, b: 40 },
+  margin: { l: 48, r: 16, t: 36, b: 80 },
   xaxis: {
     gridcolor: "rgba(237,237,237,0.06)",
     zeroline: false,
@@ -53,10 +53,10 @@ const baseLayout: Partial<Plotly.Layout> = {
   },
   legend: {
     orientation: "h",
-    x: 0,
-    y: 1.08,
-    xanchor: "left",
-    yanchor: "bottom",
+    x: 0.5,
+    y: -0.25,
+    xanchor: "center",
+    yanchor: "top",
     bgcolor: "transparent",
     borderwidth: 0,
     font: { size: 11 },

@@ -193,6 +193,7 @@ def plot_region_treemap(df: pd.DataFrame) -> go.Figure:
     fig = go.Figure(go.Treemap(
         labels=summary[COL_REGION], parents=["Ukraine"] * len(summary), values=summary["alert_count"],
         texttemplate="<b>%{label}</b><br>%{value:,}",
+        textfont=dict(color="#ffffff"),
         marker=dict(
             colors=summary["alert_count"],
             colorscale=[[0, "rgba(0,0,0,0)"], [1, "#FF3333"]],
