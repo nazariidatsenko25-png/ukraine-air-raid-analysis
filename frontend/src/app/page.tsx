@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Chart } from "@/components/ui/Chart";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { ChartCard } from "@/components/ChartCard";
 import { fetchChartData } from "@/lib/api";
 
 const pageVariants = {
@@ -16,20 +15,33 @@ const cardVariants = {
   animate: { opacity: 1, y: 0 },
 };
 
-function ChartCard({ title, endpoint, className }: { title: string; endpoint: string; className?: string }) {
-  const { data, isLoading, error } = useQuery({
+function EDAChartCard({ title, endpoint, variant, className }: {
+  title: string;
+  endpoint: string;
+  variant: "line" | "bars" | "heatmap" | "scatter" | "block";
+  className?: string;
+}) {
+  const { data, isLoading, isError } = useQuery({
     queryKey: [endpoint],
     queryFn: () => fetchChartData(endpoint),
+    retry: 1,
   });
 
   return (
-    <motion.div variants={cardVariants} className={`glass-panel p-4 flex flex-col rounded-xl shadow-lg ${className || ""}`}>
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">{title}</h3>
-      <div className="flex-1 relative min-h-[300px]">
-        {isLoading && <Skeleton className="absolute inset-0" />}
-        {error && <div className="text-primary text-sm font-mono flex items-center justify-center h-full">Error loading chart</div>}
-        {data && <Chart data={data.data} layout={data.layout} />}
-      </div>
+    <motion.div variants={cardVariants} className={className}>
+      <ChartCard
+        title={title}
+        data={data?.data}
+        layout={data?.layout}
+        isLoading={isLoading}
+        isError={isError}
+        isEmpty={!isLoading && !isError && !data?.data?.length}
+        variant={variant}
+        loadingLabel={`LOADING ${title.toUpperCase()}`}
+        emptyTitle="No data available"
+        emptyMessage="This chart requires data to be present in the dataset."
+        minHeight="400px"
+      />
     </motion.div>
   );
 }
@@ -48,16 +60,38 @@ export default function EDADashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard title="Daily Alert Volume" endpoint="/eda/daily-volume" className="lg:col-span-2 min-h-[400px]" />
-        <ChartCard title="Regional Share" endpoint="/eda/regional-treemap" className="lg:col-span-1 min-h-[400px]" />
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Hourly Pattern (Heatmap)" endpoint="/eda/heatmap" className="min-h-[400px]" />
-        <ChartCard title="Alert Duration Distribution" endpoint="/eda/regional-duration" className="min-h-[400px]" />
+        <EDAChartCard
+          title="Daily Alert Volume"
+          endpoint="/eda/daily-volume"
+          variant="line"
+          className="lg:col-span-2"
+        />
+        <EDAChartCard
+          title="Regional Share"
+          endpoint="/eda/regional-treemap"
+          variant="block"
+          className="lg:col-span-1"
+        />
       </div>
 
-      <ChartCard title="Most Frequently Targeted Regions" endpoint="/eda/regional-ranking" className="min-h-[400px]" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <EDAChartCard
+          title="Hourly Pattern (Heatmap)"
+          endpoint="/eda/heatmap"
+          variant="heatmap"
+        />
+        <EDAChartCard
+          title="Alert Duration Distribution"
+          endpoint="/eda/regional-duration"
+          variant="bars"
+        />
+      </div>
+
+      <EDAChartCard
+        title="Most Frequently Targeted Regions"
+        endpoint="/eda/regional-ranking"
+        variant="bars"
+      />
     </motion.div>
   );
 }

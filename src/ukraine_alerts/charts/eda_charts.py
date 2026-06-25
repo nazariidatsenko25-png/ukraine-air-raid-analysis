@@ -1,5 +1,6 @@
 """
-EDA Charts module using Dieter Rams aesthetic.
+EDA Charts — structural layout only.
+All colors and fonts are applied by the React frontend.
 """
 
 from __future__ import annotations
@@ -7,7 +8,7 @@ from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
 
-from ukraine_alerts.charts.theme import AXIS_STYLE, COLORS, LAYOUT_BASE
+from ukraine_alerts.charts.theme import AXIS_STYLE, LAYOUT_BASE
 from ukraine_alerts.eda.regional import PERMANENT_SIREN_REGIONS, build_region_summary
 from ukraine_alerts.utils.constants import (
     COL_DATE,
@@ -20,6 +21,7 @@ from ukraine_alerts.utils.constants import (
 
 DOW_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
+
 def plot_daily_alert_counts(df: pd.DataFrame, region: str | None = None, rolling_window: int = 14) -> go.Figure:
     df_filtered = df[df[COL_REGION] == region].copy() if region else df.copy()
     title_suffix = region if region else "All Regions (National)"
@@ -30,12 +32,12 @@ def plot_daily_alert_counts(df: pd.DataFrame, region: str | None = None, rolling
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=daily[COL_DATE], y=daily["alert_count"], name="Daily alerts",
-        marker_color=COLORS["accent"], marker_opacity=0.4,
+        marker_opacity=0.4,
         hovertemplate="<b>%{x}</b><br>Alerts: %{y}<extra></extra>",
     ))
     fig.add_trace(go.Scatter(
         x=daily[COL_DATE], y=daily["rolling_mean"], name=f"{rolling_window}-day avg",
-        line=dict(color=COLORS["accent"], width=2.5),
+        line=dict(width=2.5),
         hovertemplate="<b>%{x}</b><br>Rolling avg: %{y:.1f}<extra></extra>",
     ))
 
@@ -44,10 +46,10 @@ def plot_daily_alert_counts(df: pd.DataFrame, region: str | None = None, rolling
         title=f"Daily Alert Count — {title_suffix}",
         xaxis=dict(**AXIS_STYLE, title="Date"),
         yaxis=dict(**AXIS_STYLE, title="Number of Alerts"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=COLORS["text_muted"])),
         barmode="overlay",
     )
     return fig
+
 
 def plot_hourly_heatmap(df: pd.DataFrame, region: str | None = None) -> go.Figure:
     df_filtered = df[df[COL_REGION] == region].copy() if region else df.copy()
@@ -60,13 +62,10 @@ def plot_hourly_heatmap(df: pd.DataFrame, region: str | None = None) -> go.Figur
         z=pivot.values,
         x=[f"{h:02d}:00" for h in pivot.columns],
         y=pivot.index.tolist(),
-        colorscale=[
-            [0.0, COLORS["background"]],
-            [1.0, COLORS["accent"]],
-        ],
+        colorscale=[[0.0, "rgba(0,0,0,0)"], [1.0, "#FF3333"]],
         hoverongaps=False,
         hovertemplate="<b>%{y} %{x}</b><br>Alerts: %{z}<extra></extra>",
-        colorbar=dict(title=dict(text="Alerts", font=dict(color=COLORS["text_muted"])), tickfont=dict(color=COLORS["text_muted"])),
+        colorbar=dict(title=dict(text="Alerts")),
     ))
 
     layout = {**LAYOUT_BASE}
@@ -74,6 +73,7 @@ def plot_hourly_heatmap(df: pd.DataFrame, region: str | None = None) -> go.Figur
     layout["yaxis"] = {**AXIS_STYLE}
     fig.update_layout(**layout, title=f"Alert Timing Heatmap (Kyiv Local Time) — {title_suffix}", yaxis_title="")
     return fig
+
 
 def plot_monthly_alert_counts(df: pd.DataFrame, region: str | None = None) -> go.Figure:
     df_filtered = df[df[COL_REGION] == region].copy() if region else df.copy()
@@ -84,7 +84,6 @@ def plot_monthly_alert_counts(df: pd.DataFrame, region: str | None = None) -> go
 
     fig = go.Figure(go.Bar(
         x=monthly["year_month"], y=monthly["alert_count"],
-        marker_color=COLORS["accent"],
         hovertemplate="<b>%{x}</b><br>Alerts: %{y}<extra></extra>",
     ))
 
@@ -96,6 +95,7 @@ def plot_monthly_alert_counts(df: pd.DataFrame, region: str | None = None) -> go
     )
     return fig
 
+
 def plot_duration_distribution(df: pd.DataFrame, region: str | None = None, max_duration_minutes: float = 300.0) -> go.Figure:
     df_filtered = df[df[COL_REGION] == region].copy() if region else df.copy()
     title_suffix = region if region else "All Regions"
@@ -105,7 +105,7 @@ def plot_duration_distribution(df: pd.DataFrame, region: str | None = None, max_
 
     fig = go.Figure(go.Histogram(
         x=durations, nbinsx=80,
-        marker=dict(color=COLORS["accent"], opacity=0.8, line=dict(color=COLORS["background"], width=0.5)),
+        marker=dict(opacity=0.8),
         hovertemplate="Duration: %{x:.0f} min<br>Count: %{y}<extra></extra>",
     ))
 
@@ -115,9 +115,10 @@ def plot_duration_distribution(df: pd.DataFrame, region: str | None = None, max_
         title=f"Alert Duration Distribution — {title_suffix}",
         xaxis=dict(**AXIS_STYLE, title="Duration (minutes)"),
         yaxis=dict(**AXIS_STYLE, title="Count"),
-        annotations=[dict(x=0.98, y=0.95, xref="paper", yref="paper", text=annotation_text, showarrow=False, font=dict(color=COLORS["text_muted"], size=11), align="right")],
+        annotations=[dict(x=0.98, y=0.95, xref="paper", yref="paper", text=annotation_text, showarrow=False, font=dict(size=11), align="right")],
     )
     return fig
+
 
 def plot_region_alert_ranking(df: pd.DataFrame, top_n: int = 25, exclude_permanent: bool = False) -> go.Figure:
     summary = build_region_summary(df)
@@ -127,7 +128,6 @@ def plot_region_alert_ranking(df: pd.DataFrame, top_n: int = 25, exclude_permane
 
     fig = go.Figure(go.Bar(
         x=summary["alert_count"], y=summary[COL_REGION], orientation="h",
-        marker_color=COLORS["accent"],
         hovertemplate="<b>%{y}</b><br>Total alerts: %{x:,}<br><extra></extra>",
     ))
 
@@ -140,6 +140,7 @@ def plot_region_alert_ranking(df: pd.DataFrame, top_n: int = 25, exclude_permane
     )
     return fig
 
+
 def plot_region_duration_comparison(df: pd.DataFrame, exclude_permanent: bool = True) -> go.Figure:
     df_filtered = df.copy()
     if exclude_permanent:
@@ -149,7 +150,6 @@ def plot_region_duration_comparison(df: pd.DataFrame, exclude_permanent: bool = 
 
     fig = go.Figure(go.Bar(
         x=summary["avg_duration_min"], y=summary[COL_REGION], orientation="h",
-        marker_color=COLORS["accent"],
         hovertemplate="<b>%{y}</b><br>Median duration: %{x:.1f} min<br><extra></extra>",
     ))
 
@@ -162,20 +162,19 @@ def plot_region_duration_comparison(df: pd.DataFrame, exclude_permanent: bool = 
     )
     return fig
 
+
 def plot_regional_intensity_over_time(df: pd.DataFrame, top_n_regions: int = 6, freq: str = "W") -> go.Figure:
     top_regions = df.groupby(COL_REGION).size().nlargest(top_n_regions).index.tolist()
     df_top = df[df[COL_REGION].isin(top_regions)].copy()
     df_top["period"] = df_top[COL_START].dt.to_period(freq).dt.to_timestamp()
     weekly = df_top.groupby([COL_REGION, "period"]).size().reset_index(name="count").sort_values("period")
 
-    palette = [COLORS["text_primary"], COLORS["accent"], "#555555", "#888888", "#BBBBBB", "#333333"]
-
     fig = go.Figure()
-    for i, region in enumerate(top_regions):
+    for region in top_regions:
         region_data = weekly[weekly[COL_REGION] == region]
         fig.add_trace(go.Scatter(
             x=region_data["period"], y=region_data["count"], name=region.replace(" oblast", ""), mode="lines",
-            line=dict(color=palette[i % len(palette)], width=2),
+            line=dict(width=2),
             hovertemplate=f"<b>{region}</b><br>Period: %{{x}}<br>Alerts: %{{y}}<extra></extra>",
         ))
 
@@ -184,17 +183,21 @@ def plot_regional_intensity_over_time(df: pd.DataFrame, top_n_regions: int = 6, 
         **LAYOUT_BASE,
         title=f"{freq_label} Alert Counts — Top {top_n_regions} Regions",
         xaxis=dict(**AXIS_STYLE), yaxis=dict(**AXIS_STYLE, title="Alert Count"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=COLORS["text_muted"], size=10)),
     )
     return fig
+
 
 def plot_region_treemap(df: pd.DataFrame) -> go.Figure:
     summary = build_region_summary(df)
 
     fig = go.Figure(go.Treemap(
         labels=summary[COL_REGION], parents=["Ukraine"] * len(summary), values=summary["alert_count"],
-        texttemplate="<b>%{label}</b><br>%{value:,}", textfont=dict(color=COLORS["text_primary"], size=11),
-        marker=dict(colors=summary["alert_count"], colorscale=[[0, COLORS["background"]], [1, COLORS["accent"]]], line=dict(color=COLORS["background"], width=2)),
+        texttemplate="<b>%{label}</b><br>%{value:,}",
+        marker=dict(
+            colors=summary["alert_count"],
+            colorscale=[[0, "rgba(0,0,0,0)"], [1, "#FF3333"]],
+            line=dict(color="rgba(0,0,0,0.5)", width=2),
+        ),
         hovertemplate="<b>%{label}</b><br>Alerts: %{value:,}<extra></extra>",
     ))
 

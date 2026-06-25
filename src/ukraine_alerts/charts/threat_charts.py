@@ -1,5 +1,6 @@
 """
-Threat Charts module using Dieter Rams aesthetic.
+Threat Charts — structural layout only.
+All colors and fonts are applied by the React frontend.
 """
 
 from __future__ import annotations
@@ -8,14 +9,14 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from ukraine_alerts.charts.theme import AXIS_STYLE, LAYOUT_BASE, THREAT_COLORS
+from ukraine_alerts.charts.theme import AXIS_STYLE, LAYOUT_BASE
 
 
 def plot_threat_scatter(waves: pd.DataFrame) -> go.Figure:
     fig = px.scatter(
         waves,
         x="duration_min", y="region_count", color="threat_profile",
-        color_discrete_map=THREAT_COLORS, opacity=0.3,
+        opacity=0.4,
         hover_data=["started_at"],
         title="Attack Waves by Duration and Geographic Spread",
         marginal_x="histogram", marginal_y="histogram",
@@ -30,6 +31,7 @@ def plot_threat_scatter(waves: pd.DataFrame) -> go.Figure:
     fig.update_traces(selector=dict(type="scatter"), marker=dict(size=6, line=dict(width=0)))
     return fig
 
+
 def plot_threat_timeline(waves: pd.DataFrame) -> go.Figure:
     waves_copy = waves.copy()
     waves_copy["month"] = waves_copy["started_at"].dt.to_period("M").dt.to_timestamp()
@@ -38,7 +40,6 @@ def plot_threat_timeline(waves: pd.DataFrame) -> go.Figure:
     fig = px.bar(
         monthly_threats,
         x="month", y="count", color="threat_profile",
-        color_discrete_map=THREAT_COLORS,
         title="Monthly Attack Waves by Inferred Threat",
     )
 

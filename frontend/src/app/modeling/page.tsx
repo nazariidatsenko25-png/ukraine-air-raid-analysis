@@ -3,8 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Chart } from "@/components/ui/Chart";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { ChartCard } from "@/components/ChartCard";
 import { fetchChartData, fetchJsonData } from "@/lib/api";
 
 const pageVariants = {
@@ -25,7 +24,6 @@ export default function ModelingPage() {
     queryFn: () => fetchJsonData("/models/regions"),
   });
 
-  // Auto-select first region when data arrives
   useEffect(() => {
     if (regionsData?.regions?.length && !regionsData.regions.includes(region)) {
       setRegion(regionsData.regions[0]);
@@ -45,6 +43,8 @@ export default function ModelingPage() {
     enabled: !!region,
     retry: 1,
   });
+
+  const regionShort = region.replace(" oblast", "");
 
   return (
     <motion.div
@@ -69,30 +69,38 @@ export default function ModelingPage() {
         </select>
       </div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-4 rounded-xl shadow-lg flex flex-col min-h-[450px]">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Hidden Markov Model: Attack Regimes</h3>
-        <div className="flex-1 relative">
-          {isRegimesLoading && <Skeleton className="absolute inset-0" />}
-          {isRegimesError && (
-            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
-              Failed to load regime data for {region}. Try another region.
-            </div>
-          )}
-          {regimesData && <Chart data={regimesData.data} layout={regimesData.layout} />}
-        </div>
+      <motion.div variants={cardVariants}>
+        <ChartCard
+          title="Hidden Markov Model: Attack Regimes"
+          subtitle={regionShort ? `Threat regime classification for ${regionShort}` : undefined}
+          data={regimesData?.data}
+          layout={regimesData?.layout}
+          isLoading={isRegimesLoading || !region}
+          isError={isRegimesError}
+          isEmpty={!isRegimesLoading && !isRegimesError && !regimesData?.data?.length}
+          variant="line"
+          loadingLabel={regionShort ? `LOADING ${regionShort.toUpperCase()} REGIMES` : "LOADING"}
+          emptyTitle="No regime data"
+          emptyMessage={`No regime data available for ${regionShort}. Try another region.`}
+          minHeight="450px"
+        />
       </motion.div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-4 rounded-xl shadow-lg flex flex-col min-h-[450px]">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Prophet Forecast (14 Days)</h3>
-        <div className="flex-1 relative">
-          {isForecastLoading && <Skeleton className="absolute inset-0" />}
-          {isForecastError && (
-            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
-              Failed to load forecast for {region}. Try another region.
-            </div>
-          )}
-          {forecastData && <Chart data={forecastData.data} layout={forecastData.layout} />}
-        </div>
+      <motion.div variants={cardVariants}>
+        <ChartCard
+          title="Prophet Forecast (14 Days)"
+          subtitle={regionShort ? `Alert count forecast for ${regionShort}` : undefined}
+          data={forecastData?.data}
+          layout={forecastData?.layout}
+          isLoading={isForecastLoading || !region}
+          isError={isForecastError}
+          isEmpty={!isForecastLoading && !isForecastError && !forecastData?.data?.length}
+          variant="line"
+          loadingLabel={regionShort ? `LOADING ${regionShort.toUpperCase()} FORECAST` : "LOADING"}
+          emptyTitle="No forecast data"
+          emptyMessage={`No forecast available for ${regionShort}. Try another region.`}
+          minHeight="450px"
+        />
       </motion.div>
     </motion.div>
   );

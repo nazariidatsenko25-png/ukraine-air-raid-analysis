@@ -40,3 +40,40 @@ body {
 .text-glow-primary {
   text-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
 }
+
+/* Shimmer animation for loading skeletons */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-base {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.shimmer-base::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* Chart card toolbar — hidden until hover, always visible on focus */
+.chart-toolbar {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.group:hover .chart-toolbar,
+.chart-toolbar:focus-within {
+  opacity: 1;
+}

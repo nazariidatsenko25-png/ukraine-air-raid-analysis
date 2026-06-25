@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Chart } from "@/components/ui/Chart";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { ChartCard } from "@/components/ChartCard";
 import { fetchChartData } from "@/lib/api";
 
 const pageVariants = {
@@ -17,14 +16,16 @@ const cardVariants = {
 };
 
 export default function ThreatsPage() {
-  const { data: scatterData, isLoading: isScatterLoading } = useQuery({
+  const { data: scatterData, isLoading: isScatterLoading, isError: isScatterError } = useQuery({
     queryKey: ["/threats/scatter"],
     queryFn: () => fetchChartData("/threats/scatter"),
+    retry: 1,
   });
 
-  const { data: timelineData, isLoading: isTimelineLoading } = useQuery({
+  const { data: timelineData, isLoading: isTimelineLoading, isError: isTimelineError } = useQuery({
     queryKey: ["/threats/timeline"],
     queryFn: () => fetchChartData("/threats/timeline"),
+    retry: 1,
   });
 
   return (
@@ -36,23 +37,43 @@ export default function ThreatsPage() {
     >
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Threat Profiles (GMM Clustering)</h1>
-        <p className="text-foreground/60 text-sm">Unsupervised Gaussian Mixture Models to categorize attack waves into distinct weapon signatures.</p>
+        <p className="text-foreground/60 text-sm">
+          Unsupervised Gaussian Mixture Models to categorize attack waves into distinct weapon signatures.
+        </p>
       </div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-4 rounded-xl shadow-lg flex flex-col min-h-[500px]">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Cluster Scatter: Duration vs Regions</h3>
-        <div className="flex-1 relative">
-          {isScatterLoading && <Skeleton className="absolute inset-0" />}
-          {scatterData && <Chart data={scatterData.data} layout={scatterData.layout} />}
-        </div>
+      <motion.div variants={cardVariants}>
+        <ChartCard
+          title="Cluster Scatter: Duration vs Regions"
+          subtitle="Each point is an individual alert wave, colored by inferred weapon cluster"
+          data={scatterData?.data}
+          layout={scatterData?.layout}
+          isLoading={isScatterLoading}
+          isError={isScatterError}
+          isEmpty={!isScatterLoading && !isScatterError && !scatterData?.data?.length}
+          variant="scatter"
+          loadingLabel="LOADING THREAT CLUSTERS"
+          emptyTitle="No threat cluster data"
+          emptyMessage="GMM clustering requires sufficient data volume."
+          minHeight="500px"
+        />
       </motion.div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-4 rounded-xl shadow-lg flex flex-col min-h-[500px]">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Cluster Timeline</h3>
-        <div className="flex-1 relative">
-          {isTimelineLoading && <Skeleton className="absolute inset-0" />}
-          {timelineData && <Chart data={timelineData.data} layout={timelineData.layout} />}
-        </div>
+      <motion.div variants={cardVariants}>
+        <ChartCard
+          title="Cluster Timeline"
+          subtitle="Threat profile distribution over time — how weapon mixes shift across the war"
+          data={timelineData?.data}
+          layout={timelineData?.layout}
+          isLoading={isTimelineLoading}
+          isError={isTimelineError}
+          isEmpty={!isTimelineLoading && !isTimelineError && !timelineData?.data?.length}
+          variant="line"
+          loadingLabel="LOADING THREAT TIMELINE"
+          emptyTitle="No timeline data"
+          emptyMessage="Timeline requires at minimum 30 days of classified threat data."
+          minHeight="500px"
+        />
       </motion.div>
     </motion.div>
   );

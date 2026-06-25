@@ -1,65 +1,41 @@
 """
-Dieter Rams (Functionalist) Theme for Plotly charts.
+Backend chart theme — structural layout only.
 
-Less but better. Every element earns its place. Nothing decorative without function.
-- Typography: Clean sans-serif.
-- Color: Restrained. Dark monochromatic with a single functional accent (#FF3333).
-- Details: No backgrounds, no grid lines unless strictly necessary. Flatness is the point.
+All aesthetic styling (colors, fonts, hover labels, margins, palettes) is owned
+by the React frontend (Chart.tsx baseLayout). This module provides only structural
+defaults that convey meaning (axis labels, hover templates, titles) — not appearance.
+
+The frontend deep-merges its own aesthetic config on top of whatever Python sends,
+so any bgcolor/font/color values set here would be overwritten by React anyway.
 """
 
 from __future__ import annotations
 
-# Functionalist Color Palette
-COLORS = {
-    "background": "rgba(0,0,0,0)",  # Transparent, lets Streamlit #0A0A0A show through
-    "text_primary": "#EDEDED",      # Off-white for legibility
-    "text_muted": "#888888",        # Subdued for non-critical info
-    "accent": "#FF3333",            # Single functional accent (Alert/Danger)
-    "accent_muted": "rgba(255, 51, 51, 0.2)",    # 20% opacity for fills
-    "surface": "#141414",           # Elevated surfaces
-    "grid": "#222222",              # Extremely subtle grid
-}
-
-# Threat profile colors designed to contrast well on #0A0A0A while remaining flat
-THREAT_COLORS = {
-    "Strategic/Ballistic (MiG)": COLORS["accent"],
-    "Loitering Munition (Shahed)": "#F4A261",
-    "Tactical/Artillery": "#457B9D",
-    "Unknown": COLORS["text_muted"],
-}
-
-# Regime colors
-REGIME_COLORS = {
-    "Low Threat": "#457B9D",
-    "Elevated Threat": "#F4A261",
-    "High Threat/Crisis": COLORS["accent"],
-}
-
-# Axis style: minimal but functional
+# Structural axis defaults — no colors, just layout behavior
 AXIS_STYLE = dict(
     showgrid=True,
-    gridcolor=COLORS["grid"],
-    gridwidth=1,
     zeroline=False,
     showline=False,
-    color=COLORS["text_muted"],
-    tickfont=dict(size=11, color=COLORS["text_muted"]),
-    title_font=dict(size=12, color=COLORS["text_muted"]),
+    automargin=True,
 )
 
-# Base Layout Template
+# Structural layout base — no bgcolor, no fonts, no palette
 LAYOUT_BASE = dict(
-    template="plotly_dark",
-    paper_bgcolor=COLORS["background"],
-    plot_bgcolor=COLORS["background"],
-    font=dict(family="sans-serif", color=COLORS["text_primary"], size=13),
-    margin=dict(t=40, b=40, l=40, r=40),
+    autosize=True,
     hovermode="closest",
-    hoverlabel=dict(
-        bgcolor=COLORS["surface"],
-        font_size=12,
-        font_family="sans-serif",
-        font_color=COLORS["text_primary"],
-        bordercolor=COLORS["grid"],
-    ),
 )
+
+# Threat profile labels (used for legend text in traces)
+THREAT_LABELS = {
+    "Strategic/Ballistic (MiG)": 0,
+    "Loitering Munition (Shahed)": 1,
+    "Tactical/Artillery": 2,
+    "Unknown": 3,
+}
+
+# Regime labels (used for trace names in HMM charts)
+REGIME_LABELS = {
+    "Low Threat": "Low Threat",
+    "Elevated Threat": "Elevated Threat",
+    "High Threat/Crisis": "High Threat/Crisis",
+}

@@ -3,8 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Chart } from "@/components/ui/Chart";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { ChartCard } from "@/components/ChartCard";
 import { fetchChartData, fetchJsonData } from "@/lib/api";
 
 const pageVariants = {
@@ -25,7 +24,6 @@ export default function CascadeAnalysis() {
     queryFn: () => fetchJsonData("/cascade/regions"),
   });
 
-  // Auto-select first region when data arrives
   useEffect(() => {
     if (regionsData?.regions?.length && !regionsData.regions.includes(triggerRegion)) {
       setTriggerRegion(regionsData.regions[0]);
@@ -45,6 +43,8 @@ export default function CascadeAnalysis() {
     retry: 1,
   });
 
+  const regionShort = triggerRegion.replace(" oblast", "");
+
   return (
     <motion.div
       className="max-w-7xl mx-auto flex flex-col gap-6"
@@ -57,22 +57,34 @@ export default function CascadeAnalysis() {
         <p className="text-foreground/60 text-sm">Analyze sequential strikes and alert propagation.</p>
       </div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-4 rounded-xl shadow-lg min-h-[500px] flex flex-col">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary mb-4">Secondary Strike Cascade Matrix</h3>
-        <div className="flex-1 relative">
-          {isHeatmapLoading && <Skeleton className="absolute inset-0" />}
-          {isHeatmapError && (
-            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
-              Failed to load cascade heatmap. The computation may have timed out — try refreshing.
-            </div>
-          )}
-          {heatmapData && <Chart data={heatmapData.data} layout={heatmapData.layout} />}
-        </div>
+      <motion.div variants={cardVariants}>
+        <ChartCard
+          title="Secondary Strike Cascade Matrix"
+          subtitle="Probability that an alert in region A is followed by an alert in region B within 1 hour"
+          data={heatmapData?.data}
+          layout={heatmapData?.layout}
+          isLoading={isHeatmapLoading}
+          isError={isHeatmapError}
+          isEmpty={!isHeatmapLoading && !isHeatmapError && !heatmapData?.data?.length}
+          variant="heatmap"
+          loadingLabel="LOADING CASCADE MATRIX"
+          emptyTitle="Cascade matrix unavailable"
+          emptyMessage="The computation may have timed out — try refreshing."
+          minHeight="500px"
+        />
       </motion.div>
 
-      <motion.div variants={cardVariants} className="glass-panel p-6 rounded-xl shadow-lg flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary">Trigger Region Analysis</h3>
+      {/* Trigger Region Analysis */}
+      <motion.div variants={cardVariants} className="glass-panel rounded-xl shadow-lg flex flex-col">
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-glow-primary">
+              Trigger Region Analysis
+            </h3>
+            <p className="text-xs text-foreground/40 mt-0.5">
+              Expected secondary regions on alert after a strike in the selected oblast
+            </p>
+          </div>
           <select
             value={triggerRegion}
             onChange={(e) => setTriggerRegion(e.target.value)}
@@ -83,14 +95,22 @@ export default function CascadeAnalysis() {
             ))}
           </select>
         </div>
-        <div className="relative min-h-[400px]">
-          {isCurveLoading && <Skeleton className="absolute inset-0" />}
-          {isCurveError && (
-            <div className="absolute inset-0 flex items-center justify-center text-foreground/40 text-sm">
-              Failed to load secondary strike curve for {triggerRegion}. Try another region.
-            </div>
-          )}
-          {curveData && <Chart data={curveData.data} layout={curveData.layout} />}
+
+        <div className="px-4 pb-4 flex-1 relative min-h-[400px]">
+          <ChartCard
+            title={`Secondary Cascade — ${regionShort}`}
+            data={curveData?.data}
+            layout={curveData?.layout}
+            isLoading={isCurveLoading || !triggerRegion}
+            isError={isCurveError}
+            isEmpty={!isCurveLoading && !isCurveError && !curveData?.data?.length}
+            variant="line"
+            loadingLabel={regionShort ? `LOADING ${regionShort.toUpperCase()} DATA` : "LOADING"}
+            emptyTitle="No cascade data"
+            emptyMessage={`No cascade data available for ${regionShort}. Try another region.`}
+            minHeight="400px"
+            className="border-0 shadow-none bg-transparent backdrop-filter-none"
+          />
         </div>
       </motion.div>
     </motion.div>
